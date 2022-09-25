@@ -1,5 +1,9 @@
 package spider
 
+import (
+	jobInfo "internInformer/models/job_info"
+)
+
 type PageInfo struct {
 	Url      string
 	Username string `json:"username,omitempty"`
@@ -7,21 +11,9 @@ type PageInfo struct {
 }
 
 // 工作类型，实习或全职
-type JobType int
-
-type JobTime int
-
-type JobInfo struct {
-	JobName     string
-	Description string
-	// 实习或者全职
-	JobType string
-	// 工作分类，如计算机、综合等
-	JobCategory string
-	// 工作地点
-	Location string
-}
-
 type SpiderInterface interface {
-	GetJobInfo() (infos []JobInfo, err error)
+	GetCompanyName() string
+	UpdateJobInfo() (infos []jobInfo.JobInfo, err error)
+	// 检查工作信息变化，如下架了某职位，新增了某职位
+	CheckJobInfoChange() (newJobs, removedJobs []jobInfo.JobInfo, err error)
 }

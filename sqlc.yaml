@@ -1,0 +1,7 @@
+version: 1
+packages:
+  - name: "jobInfo"
+    path: "./models/job_info"
+    queries: "./sql/job_info.sql"
+    schema: "./sql/schema.sql"
+    engine: "sqlite"
