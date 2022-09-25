@@ -9,8 +9,8 @@ import (
 
 func TestDefaultScheduler(t *testing.T) {
 	s := NewDefaultScheduler()
-	s.Register(Instance{
-		Spider:   spider.GetDefaultSpider(),
+	s.Register(&Instance{
+		Spider:   spider.NewDefaultSpider(),
 		Informer: informer.NewDefaultInformer(),
 	})
 	s.Start()

@@ -13,7 +13,7 @@ import (
 
 type DefaultScheduler struct {
 	logger    *zap.Logger
-	instances []Instance
+	instances []*Instance
 	timer     *time.Timer
 }
 
@@ -28,7 +28,7 @@ func NewDefaultScheduler() *DefaultScheduler {
 	}
 }
 
-func (ds *DefaultScheduler) Register(ins Instance) {
+func (ds *DefaultScheduler) Register(ins *Instance) {
 	ds.instances = append(ds.instances, ins)
 }
 
@@ -40,31 +40,35 @@ func (ds *DefaultScheduler) Start() {
 			zap.String("time", time.Now().String()),
 		)
 		for _, ins := range ds.instances {
-			ds.logger.Info(
-				"start check info change",
-				zap.String("spider", ins.Spider.GetCompanyName()),
-			)
-			newJobs, removedJobs, err := ins.Spider.CheckJobInfoChange()
-			if err != nil {
-				ds.logger.Error(
-					"failed to check job info change",
-					zap.String("spiderCompany", ins.Spider.GetCompanyName()),
-					zap.Error(err),
-				)
-			}
-			if len(newJobs) == 0 && len(removedJobs) == 0 {
-				continue
-			}
-			summary := ds.generateJobInfoChangesSummary(newJobs, removedJobs)
-			err = ins.Informer.Send(summary)
-			if err != nil {
-				ds.logger.Error(
-					"failed to send message",
-					zap.String("informer", ins.Spider.GetCompanyName()),
-					zap.Error(err),
-				)
-			}
+			go ds.runInstance(ins)
 		}
+	}
+}
+
+func (ds *DefaultScheduler) runInstance(ins *Instance) {
+	ds.logger.Info(
+		"start check info change",
+		zap.String("spider", ins.Spider.GetCompanyName()),
+	)
+	newJobs, removedJobs, err := ins.Spider.CheckJobInfoChange()
+	if err != nil {
+		ds.logger.Error(
+			"failed to check job info change",
+			zap.String("spiderCompany", ins.Spider.GetCompanyName()),
+			zap.Error(err),
+		)
+	}
+	if len(newJobs) == 0 && len(removedJobs) == 0 {
+		return
+	}
+	summary := ds.generateJobInfoChangesSummary(newJobs, removedJobs)
+	err = ins.Informer.Send(summary)
+	if err != nil {
+		ds.logger.Error(
+			"failed to send message",
+			zap.String("informer", ins.Spider.GetCompanyName()),
+			zap.Error(err),
+		)
 	}
 }
 
