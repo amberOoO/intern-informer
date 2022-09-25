@@ -1,3 +1,8 @@
 [pushdeer]
+# 推送的url
 url=""
 pushkey=""
+
+[scheduler]
+# 间隔进行数据查询的间隔，单位为min
+check_interval=60

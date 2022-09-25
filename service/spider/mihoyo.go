@@ -97,6 +97,7 @@ func (s *MihoyoInternSpider) UpdateJobInfo() (infos []jobInfo.JobInfo, err error
 }
 
 func (s *MihoyoInternSpider) CheckJobInfoChange() (newJobs, removedJobs []jobInfo.JobInfo, err error) {
+	_, _ = s.UpdateJobInfo()
 	tx, err := s.rawDB.Begin()
 	if err != nil {
 		s.logger.Error("error begin transaction", zap.Error(err))
